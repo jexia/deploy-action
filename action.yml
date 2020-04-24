@@ -1,0 +1,38 @@
+name: Jexia Deploy
+description: Automatically request Jexia to Redeploy your App Hosting application
+
+branding:
+  icon: upload-cloud
+  color: yellow
+
+inputs:
+  email:
+    description: The email used for your Jexia account
+    required: true
+  password:
+    description: Your password for your Jexia account, please use a GitHub secret
+    required: true
+  project_id:
+    description: Your Jexia project ID
+    required: true
+  app_id:
+    description: Your Jexia project's app ID
+    required: true
+  api_key:
+    description: The API Key value to pass to your Jexia application
+    required: false
+  api_secret:
+    description: The API Secret to pass to your Jexia application, please use a GitHub secret
+    required: false
+  wait:
+    description: Wait for the deploy status to be returned, this will take around 7 minutes
+    required: false
+    default: false
+  silent_fail:
+    description: This will return an exit code 0. Only use if you expect to trigger this event within 10 minute intervals and don't want the action to fail when Jexia returns an error
+    required: false
+    default: false
+
+runs:
+  using: docker
+  image: Dockerfile

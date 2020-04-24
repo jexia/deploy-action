@@ -2,7 +2,7 @@
 
 Automatically request Jexia to deploy your [App Hosting](https://docs.jexia.com/apphost/) application.
 
-## Notable Features:
+## Notable Features
 
 - Ability to set API Key and API Secret
 - Ability to wait until the project has been deployed
@@ -95,6 +95,19 @@ with:
 
 ([Boolean](#boolean))
 This allows the action to always exit on an exit code `0`. This should only be used if you expect to trigger this event within ~10 minute intervals and don't want the whole action to fail when Jexia returns an error such as when the application is already in the process of deploying.
+
+### Debug
+
+```yaml
+with:
+  #   default: false
+  debug: value
+```
+
+([Boolean](#boolean))
+This will output values useful for debugging, such as the exact command used with the Jexia CLI.
+
+**Please note:** This will knowingly output the `api_secret` value to the console, however, GitHub should automatically remove this as it is a known secret.
 
 ## Input Types
 

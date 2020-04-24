@@ -16,19 +16,19 @@ echo -e "Deploying your application with ${JEXIA_COLOR}Jexia${RESET_COLOR} CLI v
 echo -e "${DARK_COLOR}Contribute to the CLI on GitHub: https://github.com/jexia/jexia-cli/${RESET_COLOR}"
 
 # Check mandatory variables
-if [ ! -z "${INPUT_EMAIL}" ]; then
+if [ -z "${INPUT_EMAIL}" ]; then
     echo -e "${ERROR_COLOR}Process could not be completed. You have not set your email.${RESET_COLOR}"
     exit 1
 fi
-if [ ! -z "${INPUT_PASSWORD}" ]; then
+if [ -z "${INPUT_PASSWORD}" ]; then
     echo -e "${ERROR_COLOR}Process could not be completed. You have not set your password.${RESET_COLOR}"
     exit 1
 fi
-if [ ! -z "${INPUT_PROJECT_ID}" ]; then
+if [ -z "${INPUT_PROJECT_ID}" ]; then
     echo -e "${ERROR_COLOR}Process could not be completed. You have not set your project ID.${RESET_COLOR}"
     exit 1
 fi
-if [ ! -z "${INPUT_APP_ID}" ]; then
+if [ -z "${INPUT_APP_ID}" ]; then
     echo -e "${ERROR_COLOR}Process could not be completed. You have not set your application ID.${RESET_COLOR}"
     exit 1
 fi
@@ -71,11 +71,11 @@ else
 fi
 
 # Output a red colour to console as when executing the command some outputs (such as some errors) are not handled and sent to OUTPUT
-printf '${ERROR_COLOR}'
+printf "${ERROR_COLOR}"
 # Run the command and send the response to OUTPUT
 OUTPUT=$(eval " ${COMMAND}")
 # Recolor console to default as all text pass this point is handled
-printf '${RESET_COLOR}\n'
+printf "${RESET_COLOR}\n"
 
 # Get values from Jexia CLIs deploy command by searching for them in the string (using extglob)
 STATUS=${OUTPUT//@(*status=\"|\"*)/}

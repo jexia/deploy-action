@@ -1,6 +1,4 @@
 #!/bin/bash
-# Enable 'extglob' which allows us to perform string matches `@(*)` etc.
-shopt -s extglob
 
 # Color values used (https://misc.flogisoft.com/bash/tip_colors_and_formatting)
 INFO_COLOR="\e[34m"    # Blue
@@ -9,6 +7,11 @@ RESET_COLOR="\e[39m"   # Normal / Default
 JEXIA_COLOR="\e[93m"   # Light Yellow
 ERROR_COLOR="\e[31m"   # Red
 SUCCESS_COLOR="\e[32m" # Green
+
+# A serious error is used to bypass the SILENT_FAIL flag, such as when credentials are wrong as the process would *never* pass
+SERIOUS_ERROR=false
+# Helper function to set the variable, prevents an incorrect assignment of a truthy value
+serious_error () { SERIOUS_ERROR=true; }
 
 # Output some information to the user, they may find it useful for debugging
 echo -e "Deploying your application with ${JEXIA_COLOR}Jexia${RESET_COLOR} CLI version: ${INFO_COLOR}$(jexia --version)${RESET_COLOR}"
@@ -70,19 +73,53 @@ else
     echo -e "Deploying to Jexia"
 fi
 
-# Output a red colour to console as when executing the command some outputs (such as some errors) are not handled and sent to OUTPUT
-printf "${ERROR_COLOR}"
 # Run the command and send the response to OUTPUT
-OUTPUT=$(eval " ${COMMAND}")
-# Recolor console to default as all text pass this point is handled
-printf "${RESET_COLOR}\n"
+OUTPUT=$(eval " ${COMMAND}" 2>&1)
 
-# Get values from Jexia CLIs deploy command by searching for them in the string (using extglob)
-STATUS=${OUTPUT//@(*status=\"|\"*)/}
-ERROR_INFO=${OUTPUT//@(*info=\"|\"*)/}
+# Get values from Jexia CLIs deploy command by searching for them in the string
+STATUS=$(echo "${OUTPUT}" | grep -oP '(?<=status=").*?(?=")')
+ERROR_INFO=$(echo "${OUTPUT}" | grep -oP '(?<=info=").*?(?=")')
+
+# Check if the status value is returned, if not search the output for know phrases related to errors
+# This process allows us to better handle when an exit code 0 and exit code 1 are used by searching the
+# error for a string if the output is not returned in the desired shell format.
+if [ -z "${STATUS}" ]; then
+
+    # We use a case command to match substrings within the output, we use this to return 'better' errors.
+    case "${OUTPUT}" in
+    *"already in progress"*)
+        # Emulate a known error returned from the deploy command when a deploy is in progress
+        STATUS="Error"
+        ERROR_INFO="a deployment is already running"
+        ;;
+    *"internal server error"*)
+        # Emulate a known error returned from the deploy command when there is an unknown internal server error
+        STATUS="Error"
+        ERROR_INFO="internal server error"
+        ;;
+    *"no matching policy"*)
+        # Emulate a known error returned from the deploy command when the project ID is not found
+        STATUS="Error"
+        ERROR_INFO="incorrect Jexia project ID"
+        serious_error
+        ;;
+    *"incorrect email or password"*)
+        # Emulate a known error returned from the deploy command when authentication fails
+        STATUS="Error"
+        ERROR_INFO="unable to authenticate, incorrect email or password provided"
+        serious_error
+        ;;
+    esac
+
+    # If the user has turned debugging on, we will append the whole command response to the end of ERROR_INFO
+    if [ "$INPUT_DEBUG" = true ]; then
+        # Display the exact command used
+        ERROR_INFO="${ERROR_INFO} ${DARK_COLOR}(${OUTPUT})${RESET_COLOR}"
+    fi
+fi
 
 # Case statement to output the correct message and exit with the correct code
-case "$STATUS" in
+case "${STATUS}" in
 "Success")
     echo -e "${SUCCESS_COLOR}Deployed successfully${RESET_COLOR}"
     ;;
@@ -92,10 +129,11 @@ case "$STATUS" in
     ;;
 
 "Error")
-    echo -e "${ERROR_COLOR}Deploy failed. ${ERROR_INFO//\\/}${RESET_COLOR}"
+    echo -e "${ERROR_COLOR}Deploy failed, ${ERROR_INFO}${RESET_COLOR}"
 
     # This will be useful if they expect to trigger this event frequently where Jexia may not have completed a previous deployment
-    if [ "$INPUT_SILENT_FAIL" = true ]; then
+    # If it is a serious error, such as the users credentials are incorrect, we will ignore the silent error request.
+    if [ "$INPUT_SILENT_FAIL" = true ] && [ "$SERIOUS_ERROR" = false ]; then
         echo -e "${ERROR_COLOR}Failed silently, exit code 0${RESET_COLOR}"
     else
         # This will be interpreted by GitHub as a fail
@@ -104,7 +142,7 @@ case "$STATUS" in
     ;;
 
 *)
-    echo -e "${ERROR_COLOR}Deploy failed. An unknown status value was returned.${RESET_COLOR}"
+    echo -e "${ERROR_COLOR}Deploy failed. Unknown internal error.${RESET_COLOR}"
     # As this is an unexpected error, we will ignore the silent fail
     exit 1
     ;;

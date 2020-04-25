@@ -96,6 +96,8 @@ with:
 ([Boolean](#boolean))
 This allows the action to always exit on an exit code `0`. This should only be used if you expect to trigger this event within ~10 minute intervals and don't want the whole action to fail when Jexia returns an error such as when the application is already in the process of deploying.
 
+**Please note:** If a serious error occurs, such as invalid user credentials (email / password), the action will ignore your silent fail request. The philosophy behind this choice is as follows, if an error could be persistent and will cause the process to **never** successfully run, we will report this as an exit code `1` error.
+
 ### Debug
 
 ```yaml

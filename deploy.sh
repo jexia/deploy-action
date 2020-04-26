@@ -6,12 +6,13 @@ DARK_COLOR="\e[90m"    # Dark gray
 RESET_COLOR="\e[39m"   # Normal / Default
 JEXIA_COLOR="\e[93m"   # Light Yellow
 ERROR_COLOR="\e[31m"   # Red
+WARNING_COLOR="\e[33m" # Light Yellow
 SUCCESS_COLOR="\e[32m" # Green
 
 # A serious error is used to bypass the SILENT_FAIL flag, such as when credentials are wrong as the process would *never* pass
-SERIOUS_ERROR=false
+SERIOUS_ERROR="false"
 # Helper function to set the variable, prevents an incorrect assignment of a truthy value
-serious_error () { SERIOUS_ERROR=true; }
+serious_error() { SERIOUS_ERROR="true"; }
 
 # Output some information to the user, they may find it useful for debugging
 echo -e "Deploying your application with ${JEXIA_COLOR}Jexia${RESET_COLOR} CLI version: ${INFO_COLOR}$(jexia --version)${RESET_COLOR}"
@@ -37,19 +38,19 @@ if [ -z "${INPUT_APP_ID}" ]; then
 fi
 
 # Inform the user which account they are using
-echo -e "Signing into account: ${INFO_COLOR}$INPUT_EMAIL${RESET_COLOR}"
+echo -e "Signing into account: ${INFO_COLOR}${INPUT_EMAIL}${RESET_COLOR}"
 
 # Pass the email and password to Jexia's config file allowing us to skip the interactive inputs
 mkdir ~/.jexia/
-printf "email: $INPUT_EMAIL\npassword: $INPUT_PASSWORD" >>~/.jexia/config.yml
+printf "email: ${INPUT_EMAIL}\npassword: ${INPUT_PASSWORD}" >>~/.jexia/config.yml
 
 # Create the initial command as a string, this allows us to add flags later and then execute separately
-COMMAND=$(echo "jexia app deploy --project $INPUT_PROJECT_ID --app $INPUT_APP_ID --format shell")
+COMMAND=$(echo "jexia app deploy --project ${INPUT_PROJECT_ID} --app ${INPUT_APP_ID} --format shell")
 
 # If the user has set the `wait` input to true we add the `--wait` flag to the command
-if [ "$INPUT_WAIT" = true ]; then
+if [ "${INPUT_WAIT}" = "true" ]; then
     # Display a warning as a user has a limited amount of minutes and minutes cost money. This should only be used when necessary
-    echo -e "\e[33mWarning: '--wait' flag added. Jexia can take around 7 minutes to deploy. This will wait for the whole duration.${RESET_COLOR}"
+    echo -e "${WARNING_COLOR}Warning: '--wait' flag added. Jexia can take around 7 minutes to deploy. This will wait for the whole duration.${RESET_COLOR}"
     COMMAND="${COMMAND} --wait"
 fi
 
@@ -65,7 +66,7 @@ fi
 
 # Output the to the user we are deploying and inform them what command we a using, if they have `debug: true`
 # Note: Outputting secrets is not recommended by GitHub even though these are automatically handled and replaced with `***`
-if [ "$INPUT_DEBUG" = true ]; then
+if [ "${INPUT_DEBUG}" = "true" ]; then
     # Display the exact command used
     echo -e "Deploying with: ${DARK_COLOR}${COMMAND}${RESET_COLOR}"
 else
@@ -112,7 +113,7 @@ if [ -z "${STATUS}" ]; then
     esac
 
     # If the user has turned debugging on, we will append the whole command response to the end of ERROR_INFO
-    if [ "$INPUT_DEBUG" = true ]; then
+    if [ "${INPUT_DEBUG}" = "true" ]; then
         # Display the exact command used
         ERROR_INFO="${ERROR_INFO} ${DARK_COLOR}(${OUTPUT})${RESET_COLOR}"
     fi
@@ -133,7 +134,7 @@ case "${STATUS}" in
 
     # This will be useful if they expect to trigger this event frequently where Jexia may not have completed a previous deployment
     # If it is a serious error, such as the users credentials are incorrect, we will ignore the silent error request.
-    if [ "$INPUT_SILENT_FAIL" = true ] && [ "$SERIOUS_ERROR" = false ]; then
+    if [ "${INPUT_SILENT_FAIL}" = "true" ] && [ "${SERIOUS_ERROR}" = "false" ]; then
         echo -e "${ERROR_COLOR}Failed silently, exit code 0${RESET_COLOR}"
     else
         # This will be interpreted by GitHub as a fail

@@ -146,7 +146,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - uses: jexia/deploy-action@v1
         with:
           email: someone@example.com

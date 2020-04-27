@@ -1,6 +1,9 @@
-# ![Jexia](https://user-images.githubusercontent.com/3440116/77702983-019eb580-6fba-11ea-8d2c-f6a6b8e60cbd.jpg) Jexia's GitHub Deploy Action
-
-Automatically request Jexia to deploy your [App Hosting](https://docs.jexia.com/apphost/) application.
+<span align="center">
+  <img alt="Jexia Logo" src="https://i.imgur.com/cfmGodW.png">
+</span>
+<h1 align="center">GitHub Deploy Action</h1>
+<p align="center">Automatically request Jexia to deploy your <a href="https://docs.jexia.com/apphost/">App Hosting</a> application.</p>
+<br/>
 
 ## Notable Features
 

@@ -32,6 +32,10 @@ inputs:
     description: This will return an exit code 0. Only use if you expect to trigger this event within 10 minute intervals and don't want the action to fail when Jexia returns an error
     required: false
     default: false
+  debug:
+    description: This will output values useful for debugging. This will output the `api_secret`, however, GitHub should automatically remove this when displaying logs
+    required: false
+    default: false
 
 runs:
   using: docker

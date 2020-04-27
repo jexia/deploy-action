@@ -78,8 +78,7 @@ This is an API Secret previously created within the Jexia dashboard, it will be 
 
 ```yaml
 with:
-  #   default: false
-  wait: value
+  wait: true # default: false
 ```
 
 ([Boolean](#boolean))
@@ -89,8 +88,7 @@ This adds the flag `--wait` and will cause the command to run until Jexia has re
 
 ```yaml
 with:
-  #   default: false
-  silent_fail: value
+  silent_fail: true # default: false
 ```
 
 ([Boolean](#boolean))
@@ -102,8 +100,7 @@ This allows the action to always exit on an exit code `0`. This should only be u
 
 ```yaml
 with:
-  #   default: false
-  debug: value
+  debug: true # default: false
 ```
 
 ([Boolean](#boolean))

@@ -1,9 +1,6 @@
-<span align="center">
-  <img alt="Jexia Logo" src="https://i.imgur.com/cfmGodW.png">
-</span>
+<p align="center"><img alt="Jexia Logo" src="https://i.imgur.com/cfmGodW.png"></p>
 <h1 align="center">GitHub Deploy Action</h1>
 <p align="center">Automatically request Jexia to deploy your <a href="https://docs.jexia.com/apphost/">App Hosting</a> application.</p>
-<br/>
 
 ## Notable Features
 
